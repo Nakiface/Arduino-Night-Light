@@ -55,8 +55,7 @@ void loop() {
       Serial.print("Uhrzeit: ");
       RTC::printNow();
     }
-
-    delay(10000)
+    
   }
-  delay(200);
+  delay(10);
 }
