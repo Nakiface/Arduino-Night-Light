@@ -15,7 +15,7 @@ SettingsManager::SettingsManager() {
 
     settingsFile.close();
 
-    serializeJson(json, Serial);
+    
 }
 
 void SettingsManager::setDefaultSettings() {
@@ -23,6 +23,7 @@ void SettingsManager::setDefaultSettings() {
     setNightEnd(6, 0);
     setNightBrightness(2);
     saveSettings();
+    serializeJson(json, Serial);
 }
 
 void SettingsManager::saveSettings() {
@@ -39,13 +40,12 @@ void SettingsManager::setNightStart(int hour, int minute) {
     nightStart["minute"] = minute;
 }
 
-JsonObject SettingsManager::getNightStart() {
-    StaticJsonDocument<200> buf;
-    JsonObject nightStart = buf.createNestedObject();
-    nightStart["hour"] = json.createNestedObject("nightStart")["hour"];
-    nightStart["minute"] = json.createNestedObject("nightStart")["minute"];
+int SettingsManager::getNightStartHour() {
+    return json.getMember("nightStart")["hour"]; 
+}
 
-    return nightStart; 
+int SettingsManager::getNightStartMinute() {
+    return json.getMember("nightStart")["minute"]; 
 }
 
 void SettingsManager::setNightEnd(int hour, int minute) {
@@ -56,27 +56,37 @@ void SettingsManager::setNightEnd(int hour, int minute) {
     nightEnd["minute"] = minute;
 }
 
-JsonObject SettingsManager::getNightEnd() {
-    StaticJsonDocument<200> buf;
-    JsonObject nightEnd = buf.createNestedObject();
-    nightEnd["hour"] = json.createNestedObject("nightEnd")["hour"];
-    nightEnd["minute"] = json.createNestedObject("nightEnd")["minute"];
+int SettingsManager::getNightEndHour() {
+    return json.getMember("nightEnd")["hour"]; 
+}
 
-    return nightEnd;
+int SettingsManager::getNightEndMinute() {
+    return json.getMember("nightEnd")["minute"]; 
 }
 
 void SettingsManager::setNightBrightness(int nightBrightness) {
     json["nightBrightness"] = nightBrightness;
 }
 
-// int SettingsManager::getNightBrightness() {
-//     int nightBrightness = json["nightBrightness"];    
-//     return nightBrightness;
-// }
+int SettingsManager::getNightBrightness() {
+    int nightBrightness = json["nightBrightness"];    
+    return nightBrightness;
+}
 
 void SettingsManager::addTarget(char* mac, char* ip) {
     JsonArray lifx = json.createNestedArray("lifx");
     JsonObject lifx_elem = lifx.createNestedObject();
     lifx_elem["mac"] = mac;
     lifx_elem["ip"] = ip;
+}
+
+char** SettingsManager::getTargets() {
+    JsonArray lifx = json.getMember("lifx");
+    char[lifx.size][2] targets;
+    for(int i = 0; i < lifx.size; i++) {
+        targets[i][0] = lifx[0]["mac"];
+        targets[i][1] = lifx[0]["ip"];
+    }
+
+    return targets;
 }

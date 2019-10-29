@@ -12,17 +12,19 @@
             void setDefaultSettings();
             void saveSettings();
 
-
             void setNightStart(int hour, int minute);
-            JsonObject getNightStart();
+            int getNightStartHour(); 
+            int getNightStartMinute();
 
             void setNightEnd(int hour, int minute);
-            JsonObject getNightEnd();
+            int getNightEndHour();
+            int getNightEndMinute();
 
             void setNightBrightness(int nightBrightness);
-            //int getNightBrightness(); 
+            int getNightBrightness(); 
 
             void addTarget(char* mac, char* ip);
+            char** getTargets();
 
         protected:
             StaticJsonDocument<512> json;
