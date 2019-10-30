@@ -7,7 +7,7 @@
     {
         public:
             MyLifx(WiFiUDP& udp);
-            void setup(IPAddress myIp, char* targetIp, char* targetMac);
+            void setup(IPAddress myIp, const char* targetIp, const char* targetMac);
             void setBrightness(int Volume);
             void setPower(bool onOff);
 

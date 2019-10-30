@@ -1,0 +1,17 @@
+{
+    "nightStart": {
+        "hour": 22,
+        "minute": 0
+    },
+    "nightEnd": {
+        "hour": 6,
+        "minute": 0
+    },
+    "nightBrightness": 2,
+    "LIFX": [
+        {
+            "mac": "d0:73:d5:3b:64:b3",
+            "ip": "192.168.137.237"
+        }
+    ]
+}

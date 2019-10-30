@@ -11,7 +11,7 @@ MyLifx::MyLifx(WiFiUDP& udp) : udp(udp)
     lifx = new ArduinoLifx(udp);
 }
 
-void MyLifx::setup(IPAddress myIp, char* targetIp, char* targetMac)
+void MyLifx::setup(IPAddress myIp, const char* targetIp, const char* targetMac)
 {
     lifx->begin(myIp, targetIp, targetMac);
     lifx->setFlags(0,0,1);

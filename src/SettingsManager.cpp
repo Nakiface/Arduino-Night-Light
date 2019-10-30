@@ -1,92 +1,141 @@
 #include "SettingsManager.h"
 
 SettingsManager::SettingsManager() {
-    File settingsFile = SD.open("/settings.json");
+
+}
+
+void SettingsManager::loadSettings() {
+    SPI.begin();
+    SPIFFS.begin();
+    Serial.println("initialize settings");
+    File settingsFile = SPIFFS.open("/settings.json", "r");
+
     if(!settingsFile) {
+        Serial.println("no settings file found");
         setDefaultSettings();
-        return;
+        settingsFile = SPIFFS.open("/settings.json", "r");
     }
 
-    auto error = deserializeJson(json, settingsFile);
-    if (error) {
-        setDefaultSettings();
-        return;
-    }
-
+    StaticJsonDocument<1024> json;
+    deserializeJson(json, settingsFile);
     settingsFile.close();
 
-    
+    nightStartHour = json["nightStart"]["hour"];
+    nightStartMinute = json["nightStart"]["minute"];
+    nightEndHour = json["nightEnd"]["hour"];
+    nightEndMinute = json["nightEnd"]["minute"];
+    nightBrightness = json["nightBrightness"];
+    JsonArray jsonLamps = json["LIFX"];
+    if(jsonLamps.size() > 0) {
+        for(unsigned int i = 0; i < jsonLamps.size(); i++) {
+            lamps.push_back(Lamp(jsonLamps[i]["ip"], jsonLamps[i]["mac"]));
+        }
+    }
 }
 
 void SettingsManager::setDefaultSettings() {
-    setNightStart(22, 0);
-    setNightEnd(6, 0);
-    setNightBrightness(2);
-    saveSettings();
-    serializeJson(json, Serial);
+    Serial.println("saving default settings");
+    File defaultSettingsFile = SPIFFS.open("/default-settings.json", "r");
+    File settingsFile = SPIFFS.open("/settings.json", "w");
+
+    if(!defaultSettingsFile) {
+        Serial.println("failed to open default-settings.json file");
+        return;
+    }
+
+    settingsFile.print(defaultSettingsFile.readString());
+    settingsFile.flush();
+    settingsFile.close();
+    defaultSettingsFile.close();
 }
 
 void SettingsManager::saveSettings() {
-    File settingsFile = SD.open("/settings.json", FILE_WRITE);
-    serializeJson(json, settingsFile);
+    Serial.println("saving settings");
+    File settingsFile = SPIFFS.open("/settings.json", "w");
+    StaticJsonDocument<1024> json;
+    JsonObject nightStart = json.createNestedObject("nightStart");
+    nightStart["hour"] = nightStartHour;
+    nightStart["minute"] = nightStartMinute;
+    JsonObject nightEnd = json.createNestedObject("nightEnd");
+    nightEnd["hour"] = nightEndHour;
+    nightEnd["minute"] = nightEndMinute;
+    json["nightBrightness"] = nightBrightness;
+    JsonArray jsonLamps = json.createNestedArray("LIFX");
+    for(int i = 0; i < lamps.size(); i++) {
+        JsonObject jsonLamp = jsonLamps.createNestedObject();
+        jsonLamp["ip"] = lamps[i].getIP();
+        jsonLamp["mac"] = lamps[i].getMac();
+    }
+    serializeJsonPretty(json, settingsFile);
     settingsFile.close();
 }
 
 void SettingsManager::setNightStart(int hour, int minute) {
     if(hour < 0 || hour > 23) return;
     if(minute < 0 || minute > 59) return;
-    JsonObject nightStart = json.createNestedObject("nightStart");
-    nightStart["hour"] = hour;
-    nightStart["minute"] = minute;
+    Serial.printf("setting night start time to %02d:%02d\n", hour, minute);
+    nightStartHour = hour;
+    nightStartMinute = minute;
+    saveSettings();
 }
 
 int SettingsManager::getNightStartHour() {
-    return json.getMember("nightStart")["hour"]; 
+    return nightStartHour;
 }
 
 int SettingsManager::getNightStartMinute() {
-    return json.getMember("nightStart")["minute"]; 
+    return nightStartMinute;
 }
 
 void SettingsManager::setNightEnd(int hour, int minute) {
     if(hour < 0 || hour > 23) return;
     if(minute < 0 || minute > 59) return;
-    JsonObject nightEnd = json.createNestedObject("nightEnd");
-    nightEnd["hour"] = hour;
-    nightEnd["minute"] = minute;
+    Serial.printf("setting night end time to %02d:%02d\n", hour, minute);
+    nightEndHour = hour;
+    nightEndMinute = minute;
+    saveSettings();
 }
 
 int SettingsManager::getNightEndHour() {
-    return json.getMember("nightEnd")["hour"]; 
+    return nightEndHour;
 }
 
 int SettingsManager::getNightEndMinute() {
-    return json.getMember("nightEnd")["minute"]; 
+    return nightEndMinute;
 }
 
 void SettingsManager::setNightBrightness(int nightBrightness) {
-    json["nightBrightness"] = nightBrightness;
+    Serial.println("setting night brightness");
+    this->nightBrightness = nightBrightness;
+    saveSettings();
 }
 
 int SettingsManager::getNightBrightness() {
-    int nightBrightness = json["nightBrightness"];    
     return nightBrightness;
 }
 
-void SettingsManager::addTarget(char* mac, char* ip) {
-    JsonArray lifx = json.createNestedArray("lifx");
-    JsonObject lifx_elem = lifx.createNestedObject();
-    lifx_elem["mac"] = mac;
-    lifx_elem["ip"] = ip;
+void SettingsManager::addLamp(const char* mac, const char* ip) {
+    Serial.printf("adding lamp with mac: %s and ip: %s\n", mac, ip);
+    lamps.push_back(Lamp(ip, mac));
+    saveSettings();
 }
 
-char** SettingsManager::getTargets() {
-    JsonArray lifx = json.getMember("lifx");
-    char[lifx.size][2] targets;
-    for(int i = 0; i < lifx.size; i++) {
-        targets[i][0] = lifx[0]["mac"];
-        targets[i][1] = lifx[0]["ip"];
+void SettingsManager::removeLamp(int index) {
+    Serial.println("removing lamp");
+    if(lamps.size() > index) {
+        lamps.erase(lamps.begin() + index);
+        saveSettings();
     }
-
-    return targets;
 }
+
+void SettingsManager::updateLamp(int index, const char* mac, const char* ip) {
+    lamps[index].setMac(mac);
+    lamps[index].setIP(ip);
+    saveSettings();
+}
+
+
+std::vector<Lamp> SettingsManager::getLamps() {
+    return lamps;
+}
+
