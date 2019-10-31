@@ -74,7 +74,7 @@ button.active {
 						<div class="p-6 flex flex-col items-center">
 						{#if active==='settings'}
 							<label>
-							When do you go to sleep?
+								When do you go to sleep?
 							</label>
 							<TimePicker bind:hour={data.nightStart.hour} bind:minute={data.nightStart.minute}/>
 							
@@ -84,7 +84,7 @@ button.active {
 							<TimePicker bind:hour={data.nightEnd.hour} bind:minute={data.nightEnd.minute}/>
 
 							<label>
-								How bright should be the light at night?
+								How bright should the light be at night?
 							</label>
 							<input type="range" min="1" max="5" bind:value={data.nightBrightness} />
 						
