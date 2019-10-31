@@ -50,26 +50,39 @@ void setup() {
 }
 
 
+bool isNight = false;
 
 void loop() {
   
   //Die Helligkeit der Lampe wird eingestellt. Hier brauchen wir ein langes Delay weil sich das setzen der Helligkeit
   //und das an- und ausschalten der Lampe sonst gegenseitig behindern
-  if (changeBrightness && RTC::now().hour() == settings.getNightStartHour() && RTC::now().minute() > settings.getNightStartMinute())
-  {
-    delay(90000);
-    lifx.setBrightness(settings.getNightBrightness()); 
-    delay(90000);
-    changeBrightness = false;
+  DateTime now = RTC::now();
+  int hour = now.hour();
+  int minute = now.minute();
+
+  if(!isNight 
+    && (((hour == settings.getNightStartHour() 
+      && minute >= settings.getNightStartMinute())
+      || hour > settings.getNightStartHour())
+    || ((hour == settings.getNightEndHour()
+      && minute < settings.getNightEndMinute())
+      || hour < settings.getNightEndHour()))) {
+      delay(90000);
+      lifx.setBrightness(settings.getNightBrightness()); 
+      delay(90000);
+      isNight = true;
   }
 
-  if (!changeBrightness && RTC::now().hour() == settings.getNightEndHour() && RTC::now().minute() > settings.getNightEndMinute())
-  {
-    delay(90000);
-    lifx.setBrightness(5);
-    delay(90000);
-    changeBrightness = true;
-  }
+  else if(isNight
+    && (((hour == settings.getNightEndHour()
+      && minute >= settings.getNightEndMinute())
+      || hour > settings.getNightEndHour())
+      && hour < settings.getNightStartHour())) {
+      delay(90000);
+      lifx.setBrightness(5);
+      delay(90000);
+      isNight = false;
+    }
  
   //Wenn bewegung und kein lich oder bewegung und lampe ist an wahr ist wird die lampe an bzw. aus geschaltet
   //damit die lampe nicht schnell hin und her schlatet bei bewegung haben wir ein 10 sek pausefenster
