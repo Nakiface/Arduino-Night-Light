@@ -1,4 +1,7 @@
 #include "ESPAsyncWebServer.h"
+#include "AsyncJson.h"
+#include "ArduinoJson.h"
+#include "SettingsManager.h"
 
 #ifndef WEBSERVER_H
 #define WEBSERVER_H
@@ -7,8 +10,11 @@
     {
     private:
         AsyncWebServer* server;
+        SettingsManager* settings;
+        char* postBodyBuffer;
+        
     public:
-        MyWebServer(AsyncWebServer* server);
+        MyWebServer(AsyncWebServer* server, SettingsManager* settings);
         void begin();
     };
 

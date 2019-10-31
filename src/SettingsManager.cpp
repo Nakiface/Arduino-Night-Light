@@ -7,7 +7,7 @@ SettingsManager::SettingsManager() {
 void SettingsManager::loadSettings() {
     SPI.begin();
     SPIFFS.begin();
-    Serial.println("initialize settings");
+    Serial.println("loading settings");
     File settingsFile = SPIFFS.open("/settings.json", "r");
 
     if(!settingsFile) {

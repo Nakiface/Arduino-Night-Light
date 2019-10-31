@@ -19,12 +19,12 @@ bool changeBrightness = true;
 
 //Erzeugen der verwendeten Klassen
 AsyncWebServer server(80);
-MyWebServer webServer(&server);
 DNSServer dns;
 AsyncWiFiManager wifiManager(&server, &dns);
+SettingsManager settings;
+MyWebServer webServer(&server, &settings);
 WiFiUDP Udp;
 MyLifx lifx(Udp); 
-SettingsManager settings;
 
 //Eingänge der Sensoren Deklareren und das Erzeugen der Sensoren Klasse
 #define MOTION_SENSOR D3
