@@ -40,9 +40,9 @@ void setup() {
 
   //Setup von WiFi, Uhr und lifx SmartLamp
   wifiManager.autoConnect("Night Light", "LIFX1234"); 
-  //RTC::setup(); 
+  RTC::setup(); 
   settings.loadSettings();
-  //lifx.setup(WiFi.localIP(), settings.getLamps()[0].getIP(), settings.getLamps()[0].getMac());
+  lifx.setup(WiFi.localIP(), settings.getLamps()[0].getIP(), settings.getLamps()[0].getMac());
 
   webServer.begin();
 
@@ -55,30 +55,30 @@ void loop() {
   
   //Die Helligkeit der Lampe wird eingestellt. Hier brauchen wir ein langes Delay weil sich das setzen der Helligkeit
   //und das an- und ausschalten der Lampe sonst gegenseitig behindern
-  // if (changeBrightness && RTC::now().hour() == settings.getNightStartHour() && RTC::now().minute() > settings.getNightStartMinute())
-  // {
-  //   delay(90000);
-  //   lifx.setBrightness(settings.getNightBrightness()); 
-  //   delay(90000);
-  //   changeBrightness = false;
-  // }
+  if (changeBrightness && RTC::now().hour() == settings.getNightStartHour() && RTC::now().minute() > settings.getNightStartMinute())
+  {
+    delay(90000);
+    lifx.setBrightness(settings.getNightBrightness()); 
+    delay(90000);
+    changeBrightness = false;
+  }
 
-  // if (!changeBrightness && RTC::now().hour() == settings.getNightEndHour() && RTC::now().minute() > settings.getNightEndMinute())
-  // {
-  //   delay(90000);
-  //   lifx.setBrightness(5);
-  //   delay(90000);
-  //   changeBrightness = true;
-  // }
+  if (!changeBrightness && RTC::now().hour() == settings.getNightEndHour() && RTC::now().minute() > settings.getNightEndMinute())
+  {
+    delay(90000);
+    lifx.setBrightness(5);
+    delay(90000);
+    changeBrightness = true;
+  }
  
-  // //Wenn bewegung und kein lich oder bewegung und lampe ist an wahr ist wird die lampe an bzw. aus geschaltet
-  // //damit die lampe nicht schnell hin und her schlatet bei bewegung haben wir ein 10 sek pausefenster
-  // if(sensors.isMotion() && (sensors.isDark() || power)) {
-  //   power = ! power;
-  //   delay(100);
-  //   lifx.setPower (power);
-  //   delay(10000);      
-  // }  
+  //Wenn bewegung und kein lich oder bewegung und lampe ist an wahr ist wird die lampe an bzw. aus geschaltet
+  //damit die lampe nicht schnell hin und her schlatet bei bewegung haben wir ein 10 sek pausefenster
+  if(sensors.isMotion() && (sensors.isDark() || power)) {
+    power = ! power;
+    delay(100);
+    lifx.setPower (power);
+    delay(10000);      
+  }  
 
-  // delay(10);
+  delay(10);
 }
