@@ -43,17 +43,16 @@ void setup() {
   RTC::setup(); 
   settings.loadSettings();
   lifx.setup(WiFi.localIP(), settings.getLamps()[0].getIP(), settings.getLamps()[0].getMac());
-
+  lifx.setBrightness(5);
+  delay(90000);
   webServer.begin();
-
-
 }
 
 
 bool isNight = false;
 
 void loop() {
-  
+  Serial.println(sensors.isMotion());
   //Die Helligkeit der Lampe wird eingestellt. Hier brauchen wir ein langes Delay weil sich das setzen der Helligkeit
   //und das an- und ausschalten der Lampe sonst gegenseitig behindern
   DateTime now = RTC::now();
@@ -88,7 +87,7 @@ void loop() {
   //damit die lampe nicht schnell hin und her schlatet bei bewegung haben wir ein 10 sek pausefenster
   if(sensors.isMotion() && (sensors.isDark() || power)) {
     power = ! power;
-    delay(100);
+    delay(200);
     lifx.setPower (power);
     delay(10000);      
   }  
