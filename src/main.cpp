@@ -43,7 +43,10 @@ void setup() {
   RTC::setup(); 
   settings.loadSettings();
   lifx.setup(WiFi.localIP(), settings.getLamps()[0].getIP(), settings.getLamps()[0].getMac());
+  Serial.println("lifx setup wird ausgeführt");
+  delay(10000);
   lifx.setBrightness(5);
+  Serial.println("Helligkeit wird gesetzt");
   delay(90000);
   webServer.begin();
 }
@@ -66,6 +69,7 @@ void loop() {
     || ((hour == settings.getNightEndHour()
       && minute < settings.getNightEndMinute())
       || hour < settings.getNightEndHour()))) {
+      Serial.println("Nachtmodus wird gestrartet");
       delay(90000);
       lifx.setBrightness(settings.getNightBrightness()); 
       delay(90000);
@@ -77,6 +81,7 @@ void loop() {
       && minute >= settings.getNightEndMinute())
       || hour > settings.getNightEndHour())
       && hour < settings.getNightStartHour())) {
+      Serial.println("Tagmodus wird gestrartet");
       delay(90000);
       lifx.setBrightness(5);
       delay(90000);
@@ -86,9 +91,10 @@ void loop() {
   //Wenn bewegung und kein lich oder bewegung und lampe ist an wahr ist wird die lampe an bzw. aus geschaltet
   //damit die lampe nicht schnell hin und her schlatet bei bewegung haben wir ein 10 sek pausefenster
   if(sensors.isMotion() && (sensors.isDark() || power)) {
+    Serial.println("Lampe Schaltet auf:");
     power = ! power;
-    delay(200);
-    lifx.setPower (power);
+    delay(10);
+    Serial.println(power);
     delay(10000);      
   }  
 

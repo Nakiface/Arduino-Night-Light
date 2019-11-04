@@ -41,10 +41,21 @@ void MyLifx::setBrightness(int Volume)
             Serial.println("keine gültiger eintrag für die Helligkeit!");
             break;
         }
-        lifx->setColor(30, 100, brightness, 3500, 10);
+        int i;
+        for (i=0; i<5; i++)
+        {
+            lifx->setColor(30, 100, brightness, 3500, 10);
+            delay (10);
+        }        
     }
 
 void MyLifx::setPower (bool onOff)
     {
+    int i;
+    for (i=0; i<5; i++)
+    {
         lifx->setPower(onOff, 200);
+        delay (10);
+    }   
+        
     }
