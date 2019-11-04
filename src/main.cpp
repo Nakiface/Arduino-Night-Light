@@ -15,8 +15,6 @@
 bool power = false;
 bool changeBrightness = true;
 
-
-
 //Erzeugen der verwendeten Klassen
 AsyncWebServer server(80);
 DNSServer dns;
