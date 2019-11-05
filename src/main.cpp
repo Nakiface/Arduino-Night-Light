@@ -13,7 +13,7 @@
 
 //Variablen zum Steuern der Logik
 bool power = false;
-bool changeBrightness = true;
+bool isNight = false;
 
 //Erzeugen der verwendeten Klassen
 AsyncWebServer server(80);
@@ -42,21 +42,18 @@ void setup() {
   settings.loadSettings();
   lifx.setup(WiFi.localIP(), settings.getLamps()[0].getIP(), settings.getLamps()[0].getMac());
   Serial.println("lifx setup wird ausgeführt");
-  delay(10000);
   lifx.setBrightness(5);
-  Serial.println("Helligkeit wird gesetzt");
   delay(90000);
   webServer.begin();
 }
 
 
-bool isNight = false;
-
 void loop() {
   Serial.println(sensors.isMotion());
+  DateTime now = RTC::now();
+
   //Die Helligkeit der Lampe wird eingestellt. Hier brauchen wir ein langes Delay weil sich das setzen der Helligkeit
   //und das an- und ausschalten der Lampe sonst gegenseitig behindern
-  DateTime now = RTC::now();
   int hour = now.hour();
   int minute = now.minute();
 
@@ -89,9 +86,10 @@ void loop() {
   //Wenn bewegung und kein lich oder bewegung und lampe ist an wahr ist wird die lampe an bzw. aus geschaltet
   //damit die lampe nicht schnell hin und her schlatet bei bewegung haben wir ein 10 sek pausefenster
   if(sensors.isMotion() && (sensors.isDark() || power)) {
-    Serial.println("Lampe Schaltet auf:");
     power = ! power;
+    lifx.setPower(power);
     delay(10);
+    Serial.print("Lampe Schaltet auf: ");
     Serial.println(power);
     delay(10000);      
   }  
